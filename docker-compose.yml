@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  passportctl:
+    depends_on:
+      - php
+    image: nginx:1.17.3-alpine
+    restart: always
+    ports:
+      - "80:80"
+    container_name: passportctl
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - passportctl:/var/www/html
+    networks:
+      - passportctl
+
+  php:
+    image: ichikawayukko/php-fpm_pgsql:7.4.4-fpm-alpine
+    restart: always
+    container_name: php-fpm
+    volumes:
+      - passportctl:/var/www/html
+    networks:
+      - passportctl
+
+  border_updater:
+    build:
+      context: updater
+    image: border_updater
+    container_name: border_updater
+    restart: always
+    environment:
+      - REWRITE_DOMAIN=passportcontrol.net
+    volumes:
+      - passportctl:/var/www/html
+
+  postgis:
+    image: mdillon/postgis:11-alpine
+    restart: always
+    container_name: postgis
+    environment:
+      - POSTGRES_PASSWORD=
+    volumes:
+      - ./volume/postgis/:/var/lib/postgresql/data/
+    networks:
+      - passportctl
+
+volumes:
+  passportctl:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/ec2-user/docker-passportctl/code
+      o: bind
+
+networks:
+  passportctl:

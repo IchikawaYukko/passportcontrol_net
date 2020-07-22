@@ -1,0 +1,60 @@
+#mainmap {
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    cursor: grab;
+}
+html, body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+body {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+.logo {
+    height: 1em;
+    display: inline;
+}
+nav {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding-right: 15px;
+}
+li {
+    list-style: none;
+}
+header {
+    position: relative;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+.title {
+    font-size: 2em;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.subtitle {
+    font-size: 1em;
+}
+.editor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 99999;
+    background-color: white;
+    width: 33%;
+    height: 100%;
+    padding: 15px 15px 15px 15px;
+    display: none;
+}
+.comment-text {
+    width: 100%;
+}
+.comments {
+    width: 100%;
+}
