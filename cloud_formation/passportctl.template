@@ -1,4 +1,17 @@
 AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  VPCCIDR:
+    Description: '1st & 2nd octet of VPC'
+    Type: String
+    Default: '172.1'
+  CommonNameTag:
+    Description: Common name tag of all assets
+    Type: String
+    Default: passportctl
+  InstanceKeyName:
+    Description: Key name of instance
+    Type: String
+    Default: passportctl
 Resources:
 # Networks
   gw1:
@@ -12,7 +25,7 @@ Resources:
   PCvpc:
     Type: 'AWS::EC2::VPC'
     Properties:
-      CidrBlock: 172.1.0.0/16
+      CidrBlock: !Sub '${VPCCIDR}.0.0/16'
       InstanceTenancy: default
       EnableDnsSupport: 'true'
       EnableDnsHostnames: 'true'
@@ -31,7 +44,7 @@ Resources:
     DependsOn:
       - PCvpcipv6cidrblock
     Properties:
-      CidrBlock: 172.1.1.0/24
+      CidrBlock: !Sub '${VPCCIDR}.1.0/24'
       Ipv6CidrBlock: !Sub ['${Param1}00::/64', {Param1: !Select ['0', !Split ['00::/',
               !Select [0, !GetAtt 'PCvpc.Ipv6CidrBlocks']]]}]
       AssignIpv6AddressOnCreation: true
@@ -68,10 +81,8 @@ Resources:
       VpcId: !Ref PCvpc
       SecurityGroupIngress:
       - IpProtocol: tcp
-#        FromPort: 7
-#        ToPort: 7
-        FromPort: 22
-        ToPort: 22
+        FromPort: 7
+        ToPort: 7
         CidrIp: 0.0.0.0/0
       - IpProtocol: tcp
         FromPort: 7
@@ -100,7 +111,7 @@ Resources:
       VpcId: !Ref PCvpc
       Tags:
         - Key: Name
-          Value: passportctl
+          Value: !Sub '${CommonNameTag}'
   route1:
     Type: 'AWS::EC2::Route'
     Properties:
@@ -117,16 +128,16 @@ Resources:
 # Instances
   PCinstance:
     Type: 'AWS::EC2::Instance'
+    DependsOn: PCsubnet
     Properties:
       DisableApiTermination: 'false'
       InstanceInitiatedShutdownBehavior: stop
       EbsOptimized: 'true'
-      #ImageId: ami-06a46da680048c8ae # CentOS Linux 7 x86_64 HVM EBS ENA 2002_01
-      ImageId: ami-0cc75a8978fbbc969 # Amazon Linux 2 AMI (HVM), SSD Volume Type
+      ImageId: ami-0cc75a8978fbbc969 # Amazon Linux 2 AMI 2.0.20200722.0 x86_64 HVM SSD Volume Type
       InstanceType: t3a.nano
-      KeyName: passportctl
+      KeyName: !Sub '${InstanceKeyName}'
       BlockDeviceMappings:
-        - DeviceName: /dev/xvda1
+        - DeviceName: /dev/xvda
           Ebs:
             VolumeType: gp2
             VolumeSize: '30'
@@ -138,15 +149,17 @@ Resources:
           DeviceIndex: 0
           SubnetId: !Ref PCsubnet
           PrivateIpAddresses:
-            - PrivateIpAddress: 172.1.1.254
+            - PrivateIpAddress: !Sub '${VPCCIDR}.1.254'
               Primary: 'true'
           GroupSet:
             - !Ref sgCentOS7x8664withUpdatesHVM200201AutogenByAWSMP
           AssociatePublicIpAddress: 'true'
-          Ipv6AddressCount: 1
+          Ipv6Addresses:
+            - Ipv6Address: !Sub ['${Param1}00::1000', {Param1: !Select ['0', !Split ['00::/',
+              !Select [0, !GetAtt 'PCvpc.Ipv6CidrBlocks']]]}]
       Tags:
         - Key: Name
-          Value: passportctl
+          Value: !Sub '${CommonNameTag}'
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -164,13 +177,14 @@ Resources:
           systemctl restart sshd
           iptables -F
 
-#          useradd ansible
-#          usermod -G wheel ansible
-#          echo "ansible:passwd"|chpasswd
-#          
-#          mkdir -p ~ansible/.ssh
-#          cp /home/centos/.ssh/authorized_keys ~ansible/.ssh/
-#          chown ansible:ansible ~ansible/.ssh/authorized_keys
+          useradd ansible
+          usermod -G wheel ansible
+          echo "ansible:passwd"|chpasswd
+
+          mkdir -p ~ansible/.ssh
+          cp /home/ec2-user/.ssh/authorized_keys ~ansible/.ssh/
+          chown -R ansible:ansible ~ansible/.ssh/
+          chmod 700 ~ansible/.ssh/
 Outputs:
   InstanceId:
     Description: InstanceId of the newly created EC2 instance
