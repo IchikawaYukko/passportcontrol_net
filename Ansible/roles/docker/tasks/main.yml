@@ -1,0 +1,12 @@
+---
+- name: Check installed package
+  yum:
+    list: installed
+  register: installed_pkgs
+
+- name: Install Docker from amazon-linux-extras
+  command: amazon-linux-extras install -y docker
+  when: "'0:docker-19.03.6ce-4.amzn2.x86_64' not in ( installed_pkgs.results | map(attribute='envra') | list)"
+
+- name: Start Docker Daemon
+  service: name=docker state=started enabled=yes
