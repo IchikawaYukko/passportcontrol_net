@@ -1,0 +1,14 @@
+- name: Install tools
+  yum:
+    name:
+      - tree
+      - git
+
+- name: Install screenfetch
+  get_url:
+    url: https://raw.githubusercontent.com/KittyKatt/screenFetch/master/screenfetch-dev
+    checksum: 'sha256:8841eabb5aa7c319f2b1f87dbac75a07f425b67888154a8779976319603732d0'
+    owner: root
+    group: root
+    mode: 0755
+    dest: /usr/local/bin/screenfetch

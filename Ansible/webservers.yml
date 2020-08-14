@@ -3,4 +3,5 @@
   become: yes
   gather_facts: no
   roles:
+    - admin-tools
     - docker
