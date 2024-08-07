@@ -2,3 +2,6 @@
 code/Aiga_immigration.svg
 code/Aiga_immigration_inv.png
 Ansible/group_vars/ec2/sudo_pass.yml
+
+# Border POI database (from OverpassAPI)
+code/border.osm
