@@ -10,3 +10,11 @@
 
 - name: Start Docker Daemon
   service: name=docker state=started enabled=yes
+
+- name: Create Dockerfiles directory
+  file:
+    path: /opt/docker
+    owner: root
+    group: wheel
+    mode: 0775
+    state: directory
