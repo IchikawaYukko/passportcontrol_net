@@ -39,8 +39,7 @@ services:
     image: mdillon/postgis:11-alpine
     restart: always
     container_name: postgis
-    environment:
-      - POSTGRES_PASSWORD=
+    env_file: credentials.env
     volumes:
       - ./volume/postgis/:/var/lib/postgresql/data/
     networks:

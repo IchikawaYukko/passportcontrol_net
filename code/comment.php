@@ -1,4 +1,5 @@
 <?php
+require_once('credentials.php');
 $pdo;
 function init() {
     global $pdo;
@@ -6,7 +7,7 @@ function init() {
     $dbhost = 'postgis';
     $dsn = "pgsql:dbname=passportctl host=$dbhost port=5432";
     $dbuser = 'postgres';
-    $dbpass ='';
+    $dbpass = DB_PASS;
 
     try {
         $pdo = new PDO($dsn, $dbuser, $dbpass,
