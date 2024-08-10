@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
+Description: passportcontrol.net
 Parameters:
   VPCCIDR:
     Description: '1st & 2nd octet of VPC'
@@ -115,7 +116,7 @@ Resources:
     Type: 'AWS::EC2::Instance'
     DependsOn: PCsubnet
     Properties:
-      DisableApiTermination: 'false'
+      DisableApiTermination: 'true'
       InstanceInitiatedShutdownBehavior: stop
       EbsOptimized: 'true'
       ImageId: ami-0cc75a8978fbbc969 # Amazon Linux 2 AMI 2.0.20200722.0 x86_64 HVM SSD Volume Type
