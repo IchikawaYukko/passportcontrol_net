@@ -6,4 +6,3 @@ services:
       - /home/ansible/.ssh/:/root/.ssh/ # Keys Dir
     working_dir: /ansible
     command: tail -f
-
